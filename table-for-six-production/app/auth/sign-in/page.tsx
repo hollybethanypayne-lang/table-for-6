@@ -1,0 +1,6 @@
+'use client';
+import {useState} from 'react';
+import {createClient} from '@/lib/supabase/browser';
+export default function SignIn(){const [email,setEmail]=useState(''),[message,setMessage]=useState('');const [busy,setBusy]=useState(false);
+async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setMessage('');try{const {error}=await createClient().auth.signInWithOtp({email,options:{emailRedirectTo:`${window.location.origin}/auth/callback?next=/app`}});if(error) throw error;setMessage('Check your inbox for your secure sign-in link.');}catch(err){setMessage(err instanceof Error?err.message:'Could not send sign-in link');}finally{setBusy(false)}}
+return <main className="shell"><div className="card" style={{maxWidth:500,margin:'60px auto'}}><div className="eyebrow">QueerMCR · Table for Six</div><h1>Come on in 💗</h1><p>Sign in using a magic link. Your app account is linked to your Shopify customer account after a separate verification step.</p><form onSubmit={submit}><label className="field">Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label><button className="btn" disabled={busy}>{busy?'Sending…':'Send my sign-in link'}</button></form>{message&&<p role="status" className="notice">{message}</p>}</div></main>}

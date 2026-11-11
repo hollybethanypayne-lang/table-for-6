@@ -1,0 +1,3 @@
+import {NextResponse} from 'next/server';import {z} from 'zod';import {paidMember,jsonError} from '@/lib/security';
+const schema=z.object({room_id:z.string().uuid(),body:z.string().trim().min(1).max(2000)});
+export async function POST(req:Request){const access=await paidMember();if(access.error)return access.error;const v=schema.safeParse(await req.json().catch(()=>null));if(!v.success)return jsonError('Invalid message');const {error}=await access.ctx!.supabase.from('messages').insert({room_id:v.data.room_id,sender_id:access.ctx!.userId,body:v.data.body});if(error)return jsonError('Unable to send. Check membership and room access.',403);return NextResponse.json({ok:true},{status:201});}

@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {paidMember,jsonError} from '@/lib/security';
+export async function GET(){const access=await paidMember();if(access.error)return access.error;const {data,error}=await access.ctx!.supabase.from('dinner_sessions').select('id,starts_at,booking_closes_at,area,seats,status').eq('status','open').gt('booking_closes_at',new Date().toISOString()).order('starts_at').limit(30);if(error)return jsonError('Dinner calendar unavailable',500);return NextResponse.json({sessions:data},{headers:{'cache-control':'no-store'}});}
